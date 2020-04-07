@@ -202,17 +202,21 @@ AVLTree *BalanceAVLTree(AVLTree * tree, AVLTreeNode *pointer_end_node)
 AVLTree *insert_at_root (AVLTree* tree, AVLTreeNode * node) 
     {
   // 1. If the tree is empty, creates a tree with the given node
-        tree->root = node;
-        tree->size++;
-        return tree;
+        if (tree->size ==0)
+        { 
+            tree->root = node;
+            tree->size++;
+            return tree;
+        }
     }
 
 
 AVLTreeNode *insert_in_tree  (AVLTreeNode * tree_node, AVLTreeNode * insert_node) 
     {   // base case when null is reached
         printf("current tree node is %d \n", tree_node->key);
-        if (tree_node->key == 0 && tree_node->value ==0)
+        if (tree_node == NULL)
         {   tree_node = insert_node;
+            return tree_node; // ear;y exit from entire code -- skips everything after this and goes into the main function that called this entire thing
         }
         // recursion case
         if ((tree_node->key < insert_node->key)  || (tree_node->key == insert_node->key && tree_node->value < insert_node->value))
@@ -223,7 +227,7 @@ AVLTreeNode *insert_in_tree  (AVLTreeNode * tree_node, AVLTreeNode * insert_node
         {   tree_node->left = insert_in_tree(tree_node->left, insert_node);
             
         }
-        return tree_node;
+        return tree_node; // draw
     }
     
 
