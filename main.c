@@ -199,23 +199,26 @@ AVLTree *BalanceAVLTree(AVLTree * tree, AVLTreeNode *pointer_end_node)
     return tree;
 }
 
-AVLTree *insert_at_root (AVLTree* tree, AVLTreeNode * node) 
+AVLTree *insert_at_root (AVLTree* tree, AVLTreeNode * node)
     {
   // 1. If the tree is empty, creates a tree with the given node
         if (tree->size ==0)
-        { 
+        {
             tree->root = node;
             tree->size++;
-            return tree;
+
         }
+    return tree;
     }
 
 
-AVLTreeNode *insert_in_tree  (AVLTreeNode * tree_node, AVLTreeNode * insert_node) 
+AVLTreeNode *insert_in_tree  (AVLTreeNode * tree_node, AVLTreeNode * insert_node)
     {   // base case when null is reached
-        printf("current tree node is %d \n", tree_node->key);
+
+
         if (tree_node == NULL)
         {   tree_node = insert_node;
+            printf("current tree node is %d \n", tree_node->key);
             return tree_node; // ear;y exit from entire code -- skips everything after this and goes into the main function that called this entire thing
         }
         // recursion case
@@ -223,13 +226,14 @@ AVLTreeNode *insert_in_tree  (AVLTreeNode * tree_node, AVLTreeNode * insert_node
         {
             tree_node->right = insert_in_tree(tree_node->right, insert_node);
         }
-        else  
+        else
         {   tree_node->left = insert_in_tree(tree_node->left, insert_node);
-            
+
         }
+        printf("after insert tree node is %d \n", tree_node->key);
         return tree_node; // draw
     }
-    
+
 
 
 AVLTree *CreateAVLTree (const char *filename)
@@ -264,17 +268,17 @@ AVLTree *CreateAVLTree (const char *filename)
             else
             {    // case when empty tree
                 node = newAVLTreeNode(x,y);
-                if (mytree->size ==0)  
+                if (mytree->size ==0)
                 {
-                  mytree = insert_at_root (mytree, node); 
-                  
-              
+                  mytree = insert_at_root (mytree, node);
+
+
                 }
-                
-                else 
+
+                else
                 {
                     mytree->root = insert_in_tree(mytree->root, node);
-                    
+
                 }}}
                 /*
                 // cases when inserted into a balanced tree of 1 node
@@ -367,7 +371,7 @@ AVLTree *CreateAVLTree (const char *filename)
 
             }
 
-        }
+        }*/
     /* Test Cases for First Case in Whiteboard
 
     printf("mytree root key before balancing is %d \n", mytree->root->key);
