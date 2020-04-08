@@ -3,6 +3,12 @@
 #include <stdio.h>
 #include <assert.h>
 
+#define max(a,b) (((a) > (b)) ? (a) : (b))
+
+// if a greater than b you print out a otherwise, condition is followed by a question mark, if condition is true
+// return a, else (:) return b
+
+
 // all the basic data structures and functions are included in this template
 // you can add your own auxiliary functions as you like
 
@@ -211,6 +217,19 @@ AVLTree *insert_at_root (AVLTree* tree, AVLTreeNode * node)
     return tree;
     }
 
+int getHeight(AVLTreeNode *node)
+{
+	if (node)
+	{
+		return node->height; // code will stop, get out of tunnel
+	}
+	return -1;  //empty node has the height of -1
+}
+
+
+
+
+
 
 AVLTreeNode *insert_in_tree  (AVLTreeNode * tree_node, AVLTreeNode * insert_node)
     {   // base case when null is reached
@@ -224,13 +243,16 @@ AVLTreeNode *insert_in_tree  (AVLTreeNode * tree_node, AVLTreeNode * insert_node
         // recursion case
         if ((tree_node->key < insert_node->key)  || (tree_node->key == insert_node->key && tree_node->value < insert_node->value))
         {
+
             tree_node->right = insert_in_tree(tree_node->right, insert_node);
         }
         else
         {   tree_node->left = insert_in_tree(tree_node->left, insert_node);
 
         }
-        printf("after insert tree node is %d \n", tree_node->key);
+        // check balance
+        tree_node->height = 1 + max(getHeight(tree_node->right), getHeight(tree_node->left));
+        printf("after insert tree node is %d and height is %d \n \n", tree_node->key, tree_node->height);
         return tree_node; // draw
     }
 
@@ -483,17 +505,6 @@ AVLTree *CreateAVLTree (const char *filename)
     printf("The balance factor for second node after balancing is %d \n", balance_factor_parent);
     balance_factor_node = balance_factor(mytree->root->left);
     printf("The balance factor for third node after balancing is %d \n", balance_factor_node);  */
-
-
-
-
-
-
-
-
-
-
-
 
     fclose ( fp ) ; // Closing the file
     //printf("mytree size in create avl tree function is is %d \n", mytree->size);
