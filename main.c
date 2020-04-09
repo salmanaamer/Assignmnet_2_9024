@@ -1,4 +1,3 @@
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
@@ -9,7 +8,9 @@
 // return a, else (:) return b
 
 int counter = 0;
-int * counter_pointer = &counter;
+int * counter_pointer = & counter; // declaration and initialisation as one can happen
+// but otherwise running of the expression only occurs in main
+
 
 
 
@@ -214,11 +215,11 @@ AVLTree *insert_at_root (AVLTree* tree, AVLTreeNode * node)
 
 
 AVLTreeNode *insert_in_tree  (AVLTreeNode * tree_node, AVLTreeNode * insert_node)
-    {  
+    {
         // base case when null is reached
         if (tree_node == NULL)
         {   tree_node = insert_node;
-            counter ++; // count inserted node
+            //counter ++; // count inserted node should not use the global variable as you lose track of where it is initialised
             return tree_node; // early exit from entire code -- skips everything after this and goes into the main function that called this entire thing
         }
         // recursion case
@@ -234,7 +235,7 @@ AVLTreeNode *insert_in_tree  (AVLTreeNode * tree_node, AVLTreeNode * insert_node
         // check balance
         tree_node->height = 1 + max(getHeight(tree_node->right), getHeight(tree_node->left));
         printf("after insert tree node is %d and height is %d \n \n", tree_node->key, tree_node->height);
-        
+
         return tree_node; // draw
     }
 
@@ -283,11 +284,11 @@ AVLTree *CreateAVLTree (const char *filename)
                 else
                 {
                     mytree->root = insert_in_tree(mytree->root, node);
-                    mytree->size = *counter_pointer;
+                    mytree->size ++;
                     printf("tree size is %d \n",  mytree->size);
-                    
-                    
-            
+
+
+
 
 
                 }}}

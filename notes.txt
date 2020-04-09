@@ -1,0 +1,10 @@
+git stash --> disregard all local changes that have not been saved,
+
+
+git checkout <previous_hash>
+
+git log --oneline  shows all versions in one line
+
+git checkout that version
+
+example : git cehckout 3132432
