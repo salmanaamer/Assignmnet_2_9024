@@ -8,9 +8,11 @@
 // if a greater than b you print out a otherwise, condition is followed by a question mark, if condition is true
 // return a, else (:) return b
 
+int counter = 0;
+int * counter_pointer = &counter;
 
-// all the basic data structures and functions are included in this template
-// you can add your own auxiliary functions as you like
+
+
 
 // data type for avl tree nodes
 typedef struct AVLTreeNode {
@@ -54,34 +56,28 @@ AVLTree *newAVLTree()
 	return T;
 }
 
+
+
+int getHeight(AVLTreeNode *node) // doesn't have to use node in funtion
+{
+	if (node)
+	{
+		return node->height; // code will stop, get out of tunnel
+	}
+	return -1;  //empty node has the height of -1
+}
+
+
+
+
 int balance_factor(AVLTreeNode * node)
 {
     int balance_factor;
-    int left_height;
-    int right_height;
-    if (node->height ==0)
-    {
-        balance_factor = 0;
-    }
-    else
-    {
-        if (node->left ==NULL)
-        {
-            left_height = -1;
-            balance_factor = node->right->height - left_height;
-        }
-        else if (node->right ==NULL)
-        {
-            right_height = -1;
-            balance_factor = right_height - node->left->height;
-        }
-        else
-        {
-            balance_factor = node->right->height - node->left->height;
-        }
-    }
+    balance_factor = getHeight(node->right) - getHeight(node->left);
     return balance_factor;
 }
+
+
 
 AVLTree *BalanceAVLTree(AVLTree * tree, AVLTreeNode *pointer_end_node)
 {
@@ -173,11 +169,6 @@ AVLTree *BalanceAVLTree(AVLTree * tree, AVLTreeNode *pointer_end_node)
                 a = balance_factor(tree->root);  //-2
                 //printf("currentpointer parent %d \n", current_pointer->parent->key);
                 b = balance_factor(current_pointer->parent);  //-1
-               // printf("values of a and b are %d %d \n", a, b);
-                //return tree;  //after the 1st rotation
-                //printf("root is %d \n" , tree->root->key); //6
-                //printf("2nd node is %d \n" , tree->root->left->key); //5
-                //printf("3nd node is %d \n" , tree->root->left->left->key); //4
 
             }
 
@@ -212,19 +203,10 @@ AVLTree *insert_at_root (AVLTree* tree, AVLTreeNode * node)
         {
             tree->root = node;
             tree->size++;
-
         }
     return tree;
     }
 
-int getHeight(AVLTreeNode *node)
-{
-	if (node)
-	{
-		return node->height; // code will stop, get out of tunnel
-	}
-	return -1;  //empty node has the height of -1
-}
 
 
 
@@ -232,13 +214,12 @@ int getHeight(AVLTreeNode *node)
 
 
 AVLTreeNode *insert_in_tree  (AVLTreeNode * tree_node, AVLTreeNode * insert_node)
-    {   // base case when null is reached
-
-
+    {  
+        // base case when null is reached
         if (tree_node == NULL)
         {   tree_node = insert_node;
-            printf("current tree node is %d \n", tree_node->key);
-            return tree_node; // ear;y exit from entire code -- skips everything after this and goes into the main function that called this entire thing
+            counter ++; // count inserted node
+            return tree_node; // early exit from entire code -- skips everything after this and goes into the main function that called this entire thing
         }
         // recursion case
         if ((tree_node->key < insert_node->key)  || (tree_node->key == insert_node->key && tree_node->value < insert_node->value))
@@ -253,6 +234,7 @@ AVLTreeNode *insert_in_tree  (AVLTreeNode * tree_node, AVLTreeNode * insert_node
         // check balance
         tree_node->height = 1 + max(getHeight(tree_node->right), getHeight(tree_node->left));
         printf("after insert tree node is %d and height is %d \n \n", tree_node->key, tree_node->height);
+        
         return tree_node; // draw
     }
 
@@ -293,6 +275,7 @@ AVLTree *CreateAVLTree (const char *filename)
                 if (mytree->size ==0)
                 {
                   mytree = insert_at_root (mytree, node);
+                  counter = 1;
 
 
                 }
@@ -300,214 +283,16 @@ AVLTree *CreateAVLTree (const char *filename)
                 else
                 {
                     mytree->root = insert_in_tree(mytree->root, node);
+                    mytree->size = *counter_pointer;
+                    printf("tree size is %d \n",  mytree->size);
+                    
+                    
+            
+
 
                 }}}
-                /*
-                // cases when inserted into a balanced tree of 1 node
-                else if (mytree->size == 1)
-                {
-                    if ((mytree->root->key < node->key)  || (mytree->root->key == node->key && mytree->root->value < node->value))
-                    // adding to right side, with only a parent node before
-                    {   mytree->root->right = node;
-                        node->parent = mytree->root;
-
-
-                    }
-                    else
-                    {
-                        mytree->root->left = node;  // adding to left side, with only a parent node before
-                        node->parent = mytree->root;
-                    }
-                    mytree->root->height++;
-                    mytree->size++;
-                    // Tests
-                    //printf("mytree size after second node inserted  is %d \n", mytree->size);
-                    // printf("mytree key for second node inserted  is %d \n", mytree->root->right->key);
-                }
-                // cases when inserted into a balanced tree of 2 nodes
-                else if (mytree->size == 2)
-                {
-                    if ((mytree->root->key < node->key) || (mytree->root->key == node->key && mytree->root->value < node->value)) // adding to right side
-                    {
-                        if (mytree->root->right == NULL) // adding to right with no node to right side, and one node on left side of parent
-                        {
-                            mytree->root->right = node;
-                            node->parent = mytree->root;
-                            mytree->root->height++;
-                            mytree->size++;
-                        }
-                        else if ((mytree->root->right->key < node->key) || (mytree->root->right->key == node->key && mytree->root->right->value < node->value))
-                        // adding to right side, with one node on right side, with inserted node greater than current right side node
-                        {
-                            mytree->root->right->right = node;
-                            node->parent = mytree->root->right;
-                            mytree->root->right->height++;
-                            mytree->root->height++;
-                            mytree->size++;
-                        }
-                        else
-                        // adding to right side, with one node on right side, with inserted node less than current right side node
-                        {
-                            mytree->root->right->left = node;
-                            node->parent = mytree->root->right;
-                            mytree->root->right->height++;
-                            mytree->root->height++;
-                            mytree->size++;
-
-                        }}
-
-                    else if (mytree->root->left == NULL)  // adding to left side - No Node on left, one on right
-                    {
-                            mytree->root->left = node;
-                            node->parent = mytree->root;
-                            mytree->root->height++;
-                            mytree->size++;
-                    }
-                    else if ((mytree->root->left->key < node->key) || (mytree->root->left->key == node->key && mytree->root->left->value < node->value))
-                    {
-
-                         // adding to left side, with one node on left side, with inserted node greater than current left side node
-
-                            mytree->root->left->right = node;
-                            node->parent = mytree->root->left;
-                            mytree->root->left->height++;
-                            mytree->root->height++;
-                            mytree->size++;
-                    }
-                    else
-                    {
-                        // adding to left side, with one node on left side, with inserted node less than current left side node
-                            mytree->root->left->left = node;
-                            node->parent = mytree->root->left;
-                            mytree->root->left->height++;
-                            mytree->root->height++;
-                            mytree->size++;
-                    }
-                // Tests
-                //printf("mytree size after third node inserted  is %d \n", mytree->size);
-                //printf("mytree height for third node inserted  is %d \n", mytree->root->height);
-                }
-
-
-
-
-            }
-
-        }*/
-    /* Test Cases for First Case in Whiteboard
-
-    printf("mytree root key before balancing is %d \n", mytree->root->key);
-    printf("mytree second node key before balancing is %d \n", mytree->root->right->key);
-    printf("mytree third node key before balancing is %d \n", mytree->root->right->right->key);
-    printf("mytree size before balancing is %d \n \n \n", mytree->size);
-    balance_factor_grandparent = balance_factor(mytree->root);
-    printf("The balance factor for root before balancing is %d \n", balance_factor_grandparent);
-    balance_factor_parent = balance_factor(mytree->root->right);
-    printf("The balance factor for second node before balancing is %d \n", balance_factor_parent);
-    balance_factor_node = balance_factor(mytree->root->right->right);
-    printf("The balance factor for third node before balancing is %d \n \n \n", balance_factor_node);
-
-
-    mytree = BalanceAVLTree(mytree, node);
-    printf("mytree root key after balancing is %d \n", mytree->root->key);
-    printf("mytree second node key after balancing is %d \n", mytree->root->right->key);
-    printf("mytree third node key after balancing is %d \n", mytree->root->left->key);
-    printf("mytree size after balancing is %d \n \n \n", mytree->size);
-    balance_factor_grandparent = balance_factor(mytree->root);
-    printf("The balance factor for root after balancing is %d \n", balance_factor_grandparent);
-    balance_factor_parent = balance_factor(mytree->root->right);
-    printf("The balance factor for second node after balancing is %d \n", balance_factor_parent);
-    balance_factor_node = balance_factor(mytree->root->left);
-    printf("The balance factor for third node after balancing is %d \n", balance_factor_node); */
-
-    /* Test Cases for Left Elbow
-
-    printf("mytree root key before balancing is %d \n", mytree->root->key);
-    printf("mytree second node key before balancing is %d \n", mytree->root->left->key);
-    printf("mytree third node key before balancing is %d \n", mytree->root->left->right->key);
-    printf("mytree size before balancing is %d \n \n \n", mytree->size);
-
-
-    balance_factor_grandparent = balance_factor(mytree->root);
-    printf("The balance factor for root before balancing is %d \n", balance_factor_grandparent);
-    balance_factor_parent = balance_factor(mytree->root->left);
-    printf("The balance factor for second node before balancing is %d \n", balance_factor_parent);
-    balance_factor_node = balance_factor(mytree->root->left->right);
-    printf("The balance factor for third node before balancing is %d \n \n \n", balance_factor_node);
-
-
-    mytree = BalanceAVLTree(mytree, node);
-    printf("mytree root key after balancing is %d \n", mytree->root->key);
-
-    printf("mytree second node key after balancing is %d \n", mytree->root->right->key);
-    printf("mytree third node key after balancing is %d \n", mytree->root->left->key); //5
-    printf("mytree size after balancing is %d \n \n \n", mytree->size);
-
-    balance_factor_grandparent = balance_factor(mytree->root);
-    printf("The balance factor for root after balancing is %d \n", balance_factor_grandparent);
-    balance_factor_parent = balance_factor(mytree->root->right);
-    printf("The balance factor for second node after balancing is %d \n", balance_factor_parent);
-    balance_factor_node = balance_factor(mytree->root->left);
-    printf("The balance factor for third node after balancing is %d \n", balance_factor_node); */
-
-  /* Test Cases for First Case in Whiteboard
-
-    printf("mytree root key before balancing is %d \n", mytree->root->key);
-    printf("mytree second node key before balancing is %d \n", mytree->root->right->key);
-    printf("mytree third node key before balancing is %d \n", mytree->root->right->right->key);
-    printf("mytree size before balancing is %d \n \n \n", mytree->size);
-    balance_factor_grandparent = balance_factor(mytree->root);
-    printf("The balance factor for root before balancing is %d \n", balance_factor_grandparent);
-    balance_factor_parent = balance_factor(mytree->root->right);
-    printf("The balance factor for second node before balancing is %d \n", balance_factor_parent);
-    balance_factor_node = balance_factor(mytree->root->right->right);
-    printf("The balance factor for third node before balancing is %d \n \n \n", balance_factor_node);
-
-
-    mytree = BalanceAVLTree(mytree, node);
-    printf("mytree root key after balancing is %d \n", mytree->root->key);
-    printf("mytree second node key after balancing is %d \n", mytree->root->right->key);
-    printf("mytree third node key after balancing is %d \n", mytree->root->left->key);
-    printf("mytree size after balancing is %d \n \n \n", mytree->size);
-    balance_factor_grandparent = balance_factor(mytree->root);
-    printf("The balance factor for root after balancing is %d \n", balance_factor_grandparent);
-    balance_factor_parent = balance_factor(mytree->root->right);
-    printf("The balance factor for second node after balancing is %d \n", balance_factor_parent);
-    balance_factor_node = balance_factor(mytree->root->left);
-    printf("The balance factor for third node after balancing is %d \n", balance_factor_node);
-
-    Test Cases for Right Elbow
-
-    printf("mytree root key before balancing is %d \n", mytree->root->key);
-    printf("mytree second node key before balancing is %d \n", mytree->root->right->key);
-    printf("mytree third node key before balancing is %d \n", mytree->root->right->left->key);
-    printf("mytree size before balancing is %d \n \n \n", mytree->size);
-
-
-    balance_factor_grandparent = balance_factor(mytree->root);
-    printf("The balance factor for root before balancing is %d \n", balance_factor_grandparent);
-    balance_factor_parent = balance_factor(mytree->root->right);
-    printf("The balance factor for second node before balancing is %d \n", balance_factor_parent);
-    balance_factor_node = balance_factor(mytree->root->right->left);
-    printf("The balance factor for third node before balancing is %d \n \n \n", balance_factor_node);
-
-
-    mytree = BalanceAVLTree(mytree, node);
-    printf("mytree root key after balancing is %d \n", mytree->root->key);
-
-    printf("mytree second node key after balancing is %d \n", mytree->root->right->key);
-    printf("mytree third node key after balancing is %d \n", mytree->root->left->key); //5
-    printf("mytree size after balancing is %d \n \n \n", mytree->size);
-
-    balance_factor_grandparent = balance_factor(mytree->root);
-    printf("The balance factor for root after balancing is %d \n", balance_factor_grandparent);
-    balance_factor_parent = balance_factor(mytree->root->right);
-    printf("The balance factor for second node after balancing is %d \n", balance_factor_parent);
-    balance_factor_node = balance_factor(mytree->root->left);
-    printf("The balance factor for third node after balancing is %d \n", balance_factor_node);  */
 
     fclose ( fp ) ; // Closing the file
-    //printf("mytree size in create avl tree function is is %d \n", mytree->size);
     return mytree;
 }
 
@@ -543,25 +328,3 @@ int main()
     free (mytree);
 }
 
-
-// Given that you have list of key - values
-// Build up an unbalanced tree from the list
-// Balance tree
-// Balance an AVL given that the subtree is balanced
-
-
-// Other approach
-// Build and balance the tree as you read in the key - value
-// elbow vs straight
-
-// Read in (key-value) one at a time
-// Create an AVLTreeNode out of this key-value
-// Add this node to the AVLTree (tree is empty and when tree has some nodes)
-// Make sure the tree is balanced: from the newly added node upto the root, following the path
-// If the node has a balance factor > 1 or < -1 -> fix the tree based on 1 out of 4 configuration
-// Balance the tree if out of balance
-//
-
-// Create the AVLTree with the 1st node
-// From the 2nd node onwards, we check the balance after every newly added node
-// Fix the balance if out of balance
