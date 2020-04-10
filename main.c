@@ -92,125 +92,73 @@ int balance_factor(AVLTreeNode * node)
  include string library, string.h
  strrcomp (xy, leftchild) */
 
+// Right straight line // why can the input not just be a node, why is it a pointer to a node ?
 
-
-
-AVLTree *BalanceAVLTree(AVLTree * tree, AVLTreeNode *pointer_end_node)
+AVLTreeNode *Rotate_left (AVLTreeNode* current_node)
 {
-    int a,b,c;
-    int check;
-    AVLTreeNode * z, *y, *x, *current_pointer;
-    current_pointer = pointer_end_node;
-    check = 1;
-    //printf("%d \n", pointer_end_node->key);  //5
-    //printf("%d \n", pointer_end_node->parent->key); //4
-    //printf("%d \n", pointer_end_node->parent->parent->key); //6
-    a = balance_factor(current_pointer->parent->parent); //segmentation fault
-    b = balance_factor(current_pointer->parent);
-    while (check == 1)
-    {  //how do you get out of this loop when while(1), would you use return 0 or return list
-        // code is not changing a and b values
-
-        //printf("values of a and b are %d %d \n", a, b);
-
-        if (tree->size <3)
-        {   check = 0; // tree is balanced, should I use return 0 ?
-        }
-
-        if (tree->size == 3)
-        {
-            if ((b ==1 || b ==0 || b == -1) && (a ==1  || a ==0 || a == -1)) // tree is balanced
-            {
-                check = 0; // end
-            }
-            //Right Straight Line
-            else if (a==2 && b ==1 )
-            {
-                //printf("test before code %d \n" , tree->root->key);
-                z = tree->root;
-                y = current_pointer->parent;
-                z->left = NULL;
-                z->right = NULL;
-                z-> height = 0;
-                z->parent = y;
-                y->left = z;
-                y->parent = NULL;
-                tree->root = y;
-                //printf("The height of the right and left children of y are %d %d \n", y->right->height, y->left->height );
-                a = balance_factor(y);
-                b = balance_factor(z);
-                //printf("values of a and b after balancing are %d %d \n", a, b);
-                //printf("test after code %d \n" , tree->root->key);
-
-            }
-            //left straight line
-            else if (a== -2 && b == -1 )
-            {
-                //printf("test before case 2 code is %d \n" , tree->root->key); //6
-                z = tree->root;  //z -> 6
-                y = current_pointer->parent;  //y --> 5
-                z->left = NULL;
-                z->right = NULL;
-                z->height = 0;
-                tree->root = y; //5
-               // printf("root is %d \n" , tree->root->key);
-                y->right = z;
-                z->parent = y;
-                y->parent = NULL;
-                a = balance_factor(y);
-                b = balance_factor(z);
-
-                 //5
-                //printf("2nd node is %d \n" , tree->root->left->key); //4
-               // printf("3nd node is %d \n" , tree->root->right->key); //6
-
-
-            }
-            // left elbow
-            else if (a== -2 && b == 1 )
-            {
-                //printf("test before case 3 code is %d \n" , tree->root->key); //6
-                //.      6                       6
-                //.    4      =====>           5
-                //.     5    currentpointer  4
-                y = current_pointer->parent;  //y = 4
-                x = current_pointer; // 5
-                tree->root->left = x; //5
-                x->height = 1;
-                x->left = y; //4
-                y->parent = x;
-                y->right = NULL;
-                y->height = 0;
-                current_pointer = y;
-                a = balance_factor(tree->root);  //-2
-                //printf("currentpointer parent %d \n", current_pointer->parent->key);
-                b = balance_factor(current_pointer->parent);  //-1
-
-            }
-
-            // Right Elbow
-            else if (a== 2 && b == -1)
-            {   //currentpointer = 7
-                y = current_pointer->parent;  //y = 9
-                x = current_pointer; // 7
-                tree->root->right = x; //7
-                x->height = 1;
-                x->right = y; //9
-                y->parent = x;
-                y->right = NULL;
-                y->height = 0;
-                current_pointer = y;  //9
-                a = balance_factor(tree->root);  //-2
-                //printf("currentpointer parent %d \n", current_pointer->parent->key);
-                b = balance_factor(current_pointer->parent);
-
-            }
-        }
-
+    current_node->right->parent = current_node->parent; // parent of 4 becomes root
+    current_node->parent = current_node->right; // 2's parent becomes 4, root points to 4
+    current_node->right = current_node->parent->left; // any tree on the left side of 4 (T1) becomes a child of 2
+    // but how do you change this trees parent
+    if (current_node->right != NULL)
+    {
+        current_node->right->parent = current_node; // WHY CAN IT NOT WORK WITHOUT THIS
     }
-
-    return tree;
+    current_node->parent->left = current_node; // 4's left child becomes 2
+    current_node->height = 1 + max(getHeight(current_node->right), getHeight(current_node->left));
+    current_node = current_node->parent;
+    current_node->height = 1 + max(getHeight(current_node->right), getHeight(current_node->left));
+    return current_node;
+    
 }
+
+
+// Left straight line // why can the input not just be a node, why is it a pointer to a node ?
+
+AVLTreeNode *Rotate_right (AVLTreeNode* current_node)
+{
+    current_node->left->parent = current_node->parent; // parent of 3 becomes root
+    current_node->parent = current_node->left; // 4's parent becomes 3, root points to 3
+    current_node->left = current_node->parent->right; // any tree on the right side of 3 (T1) becomes a child of 4
+    if (current_node->left != NULL)
+    {
+        current_node->left->parent = current_node; // WHY CAN IT NOT WORK WITHOUT THIS
+    }
+    current_node->parent->right = current_node; // 3's right child becomes 4 and the left child remains unchanged
+    current_node->height = 1 + max(getHeight(current_node->right), getHeight(current_node->left));
+    current_node = current_node->parent;
+    current_node->height = 1 + max(getHeight(current_node->right), getHeight(current_node->left));
+    return current_node;
+    
+}
+
+// need to update height
+
+
+// This function transforms left elbow into a left straight line which is then rotated
+
+AVLTreeNode *Rotate_right_double(AVLTreeNode * current_node)
+{   AVLTreeNode * x;
+    AVLTreeNode * y;
+    AVLTreeNode * z;
+    y = current_node->left;
+    x = current_node->left->right;
+    current_node->left = x;
+    x->parent = current_node;
+    y->right = x->left;
+    if (y->right != NULL)
+    {
+        y->right->parent = y;
+    }
+    x->left = y;
+    y->parent = x;
+    
+    x->height = 1 + max(getHeight(x->right), getHeight(x->left));
+    y->height = 1 + max(getHeight(y->right), getHeight(y->left));
+    current_node->height = 1 + max(getHeight(current_node->right), getHeight(current_node->left));
+    return current_node;
+}
+
 
 AVLTree *insert_at_root (AVLTree* tree, AVLTreeNode * node)
     {
@@ -225,12 +173,6 @@ AVLTree *insert_at_root (AVLTree* tree, AVLTreeNode * node)
         }
     return tree;
     }
-
-
-
-
-
-
 
 
 AVLTreeNode *insert_in_tree  (AVLTreeNode * tree_node, AVLTreeNode * insert_node)
@@ -262,53 +204,61 @@ AVLTreeNode *insert_in_tree  (AVLTreeNode * tree_node, AVLTreeNode * insert_node
         }
 
 
-
+        // update height before and after balancing
         tree_node->height = 1 + max(getHeight(tree_node->right), getHeight(tree_node->left));
 
         // after increasing the height, check the balance again
 
         bf_node = balance_factor(tree_node);
+        
         if (bf_node != 2 && bf_node!= -2)  // check if we need to balance
         {
             return tree_node; // return node as balanced, 1 / -1 is already balanced
         }
         else if (bf_node == 2)  // right straight or right elbow, so check which case
         {
-
-
             // check if tree_node is left child or right child - there is no need
             // both right straight and right elbow have second node (b) on right side of node
             // with balance factor of 2
 
             if (balance_factor(tree_node->right) == 1) // right straight line              )
-            {   // put it inisde function
+            {   
                 // tree_node = 2, tree_node->right = 4, tree_node_right_right = 9
 
-                tree_node->right->parent = tree_node->parent; // parent of 4 becomes root
-                tree_node->parent = tree_node->right; // 2's parent becomes 4, root points to 4
-                tree_node->right = tree_node->parent->left; // any tree on the left side of 4 (T1) becomes a child of 2
-                tree_node->parent->left = tree_node; // 4's left child becomes 2
-                tree_node = tree_node->parent;
+                tree_node = Rotate_left(tree_node);
+                bf_node = balance_factor(tree_node);
             }
+            
+            //if (balance_factor(tree_node->right) == -1) // right elbow
+                
 
-
+            
         }
+        
+        else if (bf_node == -2)
+        {        bf_node = balance_factor(tree_node); 
+             if (bf_node == -2 && balance_factor(tree_node->left) == -1) // left straight line              
+            {   
+                // tree_node = 2, tree_node->right = 4, tree_node_right_right = 9
 
+                tree_node = Rotate_right(tree_node);
+                bf_node = balance_factor(tree_node);
+            }
+            
+           if (bf_node == -2 && balance_factor(tree_node->left) == 1) // left elbow
+                // left elbow, break it into 2 steps, first transform into a order that can be fixed using a single rotation
+                // transformation
+            {   tree_node = Rotate_right_double(tree_node);
+                tree_node = Rotate_right(tree_node);
+                bf_node = balance_factor(tree_node);
+            }
+            
+        }
+        
         return tree_node; // draw
 
 
     }
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -371,6 +321,9 @@ AVLTree *CreateAVLTree (const char *filename)
 }
 
 
+
+
+
 // function followed immediately with paranthesis
 void printhelper(AVLTreeNode* node){
     if (node != NULL){
@@ -385,7 +338,7 @@ void printhelper(AVLTreeNode* node){
 
 }
 
-// put your time complexity analysis for PrintAVLTree() here
+
 void PrintAVLTree(AVLTree *T)  // if original function has input different from what we need to use, make use of helper function
 { printhelper(T->root);
 }
@@ -401,18 +354,3 @@ int main()
     //PrintAVLTree(mytree);
     free (mytree);
 }
-
-/*
-
-Do we need to free pointers ?
-
-
-
-
-
-
-
-
-
-
-*/

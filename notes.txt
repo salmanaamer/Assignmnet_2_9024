@@ -12,3 +12,12 @@ example : git cehckout 3132432
 
 debug50 with name
 ^C get out of debug
+
+
+the code does not work if I dont check for balance factor again
+
+
+
+/ Right straight line // why can the input not just be a node, why is it a pointer to a node ?
+
+Do we need to free pointers ?
