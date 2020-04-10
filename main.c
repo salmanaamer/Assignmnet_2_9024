@@ -7,9 +7,6 @@
 // if a greater than b you print out a otherwise, condition is followed by a question mark, if condition is true
 // return a, else (:) return b
 
-int counter = 0;
-int * counter_pointer = & counter; // declaration and initialisation as one can happen
-// but otherwise running of the expression only occurs in main
 
 
 
@@ -77,6 +74,25 @@ int balance_factor(AVLTreeNode * node)
     balance_factor = getHeight(node->right) - getHeight(node->left);
     return balance_factor;
 }
+
+
+ // check if tree_node is left child or right child
+ 
+int *check_node_position (AVLTreeNode * tree_node)
+{
+    if (tree_node->parent == NULL)
+    { return 0;}
+    if (tree_node->parent->left == tree_node)
+    {return -1;} // left child of parent
+    else return 1; // right child of parent
+
+}
+ 
+ 
+ 
+ 
+
+
 
 
 
@@ -214,31 +230,69 @@ AVLTree *insert_at_root (AVLTree* tree, AVLTreeNode * node)
 
 
 
+
 AVLTreeNode *insert_in_tree  (AVLTreeNode * tree_node, AVLTreeNode * insert_node)
-    {
+    {   int bf_node, by, bz;
+        int left_height, right_height;
         // base case when null is reached
         if (tree_node == NULL)
-        {   tree_node = insert_node;
-            //counter ++; // count inserted node should not use the global variable as you lose track of where it is initialised
+           // tree_node->parent = parent_newnode_pointer;
+            //printf("tree node key is %d \n ",tree_node->key);
+        {   
+            tree_node = insert_node; // the inserted node will always have a balance factor of 0 as it has no children
+            //tree_node->parent = parent_newnode_pointer;  
+            //printf("parent node key is %d \n ",tree_node->parent->key);
             return tree_node; // early exit from entire code -- skips everything after this and goes into the main function that called this entire thing
         }
         // recursion case
+        AVLTreeNode * parent_newnode_pointer = tree_node; // why is this causing an issue ?
         if ((tree_node->key < insert_node->key)  || (tree_node->key == insert_node->key && tree_node->value < insert_node->value))
         {
-
+           
             tree_node->right = insert_in_tree(tree_node->right, insert_node);
+            tree_node->right->parent = tree_node;
+            
         }
         else
         {   tree_node->left = insert_in_tree(tree_node->left, insert_node);
+            tree_node->left->parent = tree_node;
 
         }
-        // check balance
+        
+        
+        
         tree_node->height = 1 + max(getHeight(tree_node->right), getHeight(tree_node->left));
-        printf("after insert tree node is %d and height is %d \n \n", tree_node->key, tree_node->height);
-
+       
+        // after increasing the height, check the balance again
+       
+       
+        bx = balance_factor(tree_node);
+        if (bf_node != 2 && bf_node!= -2)
+        {
+            return tree_node; // draw
+        } 
+        else if (bf_node=2)  // right straight or right elbow, so check which case
+        {
+            left_height = getHeight(tree_node->left);    
+            right_height = getHeight(tree_node->right);
+            
+            // check if tree_node is left child or right child
+            
+            if ( left_height == -1 && right_height == 1) // right straight line              ) 
+            {
+                tree_node->right->parent = tree_node->parent;
+                tree_node->parent = tree_node->right;
+                tree_node->right = tree_node->parent->left;
+                tree_node->parent->left = tree_node;
+            }
+            
+            
+        }
+        
         return tree_node; // draw
+        
+          
     }
-
 
 
 AVLTree *CreateAVLTree (const char *filename)
@@ -276,8 +330,6 @@ AVLTree *CreateAVLTree (const char *filename)
                 if (mytree->size ==0)
                 {
                   mytree = insert_at_root (mytree, node);
-                  counter = 1;
-
 
                 }
 
@@ -285,7 +337,8 @@ AVLTree *CreateAVLTree (const char *filename)
                 {
                     mytree->root = insert_in_tree(mytree->root, node);
                     mytree->size ++;
-                    printf("tree size is %d \n",  mytree->size);
+                    //printf("tree size is %d \n",  mytree->size);
+                   
 
 
 
@@ -325,7 +378,21 @@ int main()
 {
     AVLTree *mytree;
     mytree = CreateAVLTree ("File1.txt");
-    PrintAVLTree(mytree);
+    //PrintAVLTree(mytree);
     free (mytree);
 }
 
+/*
+
+Do we need to free pointers ?
+
+
+
+
+
+
+
+
+
+
+*/
