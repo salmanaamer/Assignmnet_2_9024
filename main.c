@@ -76,22 +76,21 @@ int balance_factor(AVLTreeNode * node)
 }
 
 
- // check if tree_node is left child or right child
- 
-int *check_node_position (AVLTreeNode * tree_node)
+ /* check if tree_node is left child or right child
+
+ char *check_node_position (AVLTreeNode * tree_node)
 {
     if (tree_node->parent == NULL)
-    { return 0;}
+    { return "left child";}
     if (tree_node->parent->left == tree_node)
     {return -1;} // left child of parent
     else return 1; // right child of parent
 
 }
- 
- 
- 
- 
 
+ xy = "left child"
+ include string library, string.h
+ strrcomp (xy, leftchild) */
 
 
 
@@ -218,8 +217,11 @@ AVLTree *insert_at_root (AVLTree* tree, AVLTreeNode * node)
   // 1. If the tree is empty, creates a tree with the given node
         if (tree->size ==0)
         {
+
+            node->parent = tree->root;
             tree->root = node;
             tree->size++;
+
         }
     return tree;
     }
@@ -238,9 +240,9 @@ AVLTreeNode *insert_in_tree  (AVLTreeNode * tree_node, AVLTreeNode * insert_node
         if (tree_node == NULL)
            // tree_node->parent = parent_newnode_pointer;
             //printf("tree node key is %d \n ",tree_node->key);
-        {   
+        {
             tree_node = insert_node; // the inserted node will always have a balance factor of 0 as it has no children
-            //tree_node->parent = parent_newnode_pointer;  
+            //tree_node->parent = parent_newnode_pointer;
             //printf("parent node key is %d \n ",tree_node->parent->key);
             return tree_node; // early exit from entire code -- skips everything after this and goes into the main function that called this entire thing
         }
@@ -248,51 +250,68 @@ AVLTreeNode *insert_in_tree  (AVLTreeNode * tree_node, AVLTreeNode * insert_node
         AVLTreeNode * parent_newnode_pointer = tree_node; // why is this causing an issue ?
         if ((tree_node->key < insert_node->key)  || (tree_node->key == insert_node->key && tree_node->value < insert_node->value))
         {
-           
+
             tree_node->right = insert_in_tree(tree_node->right, insert_node);
             tree_node->right->parent = tree_node;
-            
+
         }
         else
         {   tree_node->left = insert_in_tree(tree_node->left, insert_node);
             tree_node->left->parent = tree_node;
 
         }
-        
-        
-        
+
+
+
         tree_node->height = 1 + max(getHeight(tree_node->right), getHeight(tree_node->left));
-       
+
         // after increasing the height, check the balance again
-       
-       
-        bx = balance_factor(tree_node);
-        if (bf_node != 2 && bf_node!= -2)
+
+        bf_node = balance_factor(tree_node);
+        if (bf_node != 2 && bf_node!= -2)  // check if we need to balance
         {
-            return tree_node; // draw
-        } 
-        else if (bf_node=2)  // right straight or right elbow, so check which case
-        {
-            left_height = getHeight(tree_node->left);    
-            right_height = getHeight(tree_node->right);
-            
-            // check if tree_node is left child or right child
-            
-            if ( left_height == -1 && right_height == 1) // right straight line              ) 
-            {
-                tree_node->right->parent = tree_node->parent;
-                tree_node->parent = tree_node->right;
-                tree_node->right = tree_node->parent->left;
-                tree_node->parent->left = tree_node;
-            }
-            
-            
+            return tree_node; // return node as balanced, 1 / -1 is already balanced
         }
-        
+        else if (bf_node == 2)  // right straight or right elbow, so check which case
+        {
+
+
+            // check if tree_node is left child or right child - there is no need
+            // both right straight and right elbow have second node (b) on right side of node
+            // with balance factor of 2
+
+            if (balance_factor(tree_node->right) == 1) // right straight line              )
+            {   // put it inisde function
+                // tree_node = 2, tree_node->right = 4, tree_node_right_right = 9
+
+                tree_node->right->parent = tree_node->parent; // parent of 4 becomes root
+                tree_node->parent = tree_node->right; // 2's parent becomes 4, root points to 4
+                tree_node->right = tree_node->parent->left; // any tree on the left side of 4 (T1) becomes a child of 2
+                tree_node->parent->left = tree_node; // 4's left child becomes 2
+                tree_node = tree_node->parent;
+            }
+
+
+        }
+
         return tree_node; // draw
-        
-          
+
+
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 AVLTree *CreateAVLTree (const char *filename)
@@ -331,14 +350,15 @@ AVLTree *CreateAVLTree (const char *filename)
                 {
                   mytree = insert_at_root (mytree, node);
 
+
                 }
 
                 else
                 {
                     mytree->root = insert_in_tree(mytree->root, node);
                     mytree->size ++;
-                    //printf("tree size is %d \n",  mytree->size);
-                   
+                    printf("tree root is this after balancing %d \n",  mytree->root->key);
+
 
 
 

@@ -8,3 +8,7 @@ git log --oneline  shows all versions in one line
 git checkout that version
 
 example : git cehckout 3132432
+
+
+debug50 with name
+^C get out of debug
