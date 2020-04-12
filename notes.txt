@@ -26,3 +26,5 @@ double clik to add breakpoint //
 
 
 use up and down arrows to toggle between old commands used in terminal
+
+./main > output.txt
