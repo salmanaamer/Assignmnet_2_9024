@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include <assert.h>
 
-#define max(a,b) (((a) > (b)) ? (a) : (b))
+#define max(a,b) (((a) > (b)) ? (a) : (b)) // it needs to compare a and b and then output a or b
+// but to output it needs to calculate a or b
 
 // if a greater than b you print out a otherwise, condition is followed by a question mark, if condition is true
 // return a, else (:) return b
@@ -106,10 +107,11 @@ AVLTreeNode *Rotate_left (AVLTreeNode* current_node)
     }
     current_node->parent->left = current_node; // 4's left child becomes 2
     current_node->height = 1 + max(getHeight(current_node->right), getHeight(current_node->left));
+
     current_node = current_node->parent;
     current_node->height = 1 + max(getHeight(current_node->right), getHeight(current_node->left));
     return current_node;
-    
+
 }
 
 
@@ -129,7 +131,7 @@ AVLTreeNode *Rotate_right (AVLTreeNode* current_node)
     current_node = current_node->parent;
     current_node->height = 1 + max(getHeight(current_node->right), getHeight(current_node->left));
     return current_node;
-    
+
 }
 
 // need to update height
@@ -141,21 +143,22 @@ AVLTreeNode *Rotate_right_double(AVLTreeNode * current_node)
 {   AVLTreeNode * x;
     AVLTreeNode * y;
     AVLTreeNode * z;
-    y = current_node->left;
-    x = current_node->left->right;
-    current_node->left = x;
+    y = current_node->left; // y becomes 5
+    x = current_node->left->right; // x becomes 7
+    current_node->left = x; //9's left becomes 7
     x->parent = current_node;
     y->right = x->left;
     if (y->right != NULL)
     {
         y->right->parent = y;
     }
-    x->left = y;
+    x->left = y; // 7's left becomes 5
     y->parent = x;
-    
-    x->height = 1 + max(getHeight(x->right), getHeight(x->left));
+    // you need to update height of child before you update height of parent
+
     y->height = 1 + max(getHeight(y->right), getHeight(y->left));
-    current_node->height = 1 + max(getHeight(current_node->right), getHeight(current_node->left));
+    x->height = 1 + max(getHeight(x->right), getHeight(x->left));
+    //current_node->height = 1 + max(getHeight(current_node->right), getHeight(current_node->left));
     return current_node;
 }
 
@@ -203,14 +206,14 @@ AVLTreeNode *insert_in_tree  (AVLTreeNode * tree_node, AVLTreeNode * insert_node
 
         }
 
-
+        // this is after 10 is inserted and 9's right = 10 and now you are going back the chain
         // update height before and after balancing
-        tree_node->height = 1 + max(getHeight(tree_node->right), getHeight(tree_node->left));
+        tree_node->height = 1 + max(getHeight(tree_node->right), getHeight(tree_node->left)); // update height of 9
 
         // after increasing the height, check the balance again
 
         bf_node = balance_factor(tree_node);
-        
+
         if (bf_node != 2 && bf_node!= -2)  // check if we need to balance
         {
             return tree_node; // return node as balanced, 1 / -1 is already balanced
@@ -222,39 +225,54 @@ AVLTreeNode *insert_in_tree  (AVLTreeNode * tree_node, AVLTreeNode * insert_node
             // with balance factor of 2
 
             if (balance_factor(tree_node->right) == 1) // right straight line              )
-            {   
+            {
                 // tree_node = 2, tree_node->right = 4, tree_node_right_right = 9
-
+             //   printf("The current node and its height are %d %d \n", tree_node->key, tree_node->height);
                 tree_node = Rotate_left(tree_node);
-                bf_node = balance_factor(tree_node);
-            }
-            
-            //if (balance_factor(tree_node->right) == -1) // right elbow
-                
+              //  printf("The current node and its height are %d %d \n", tree_node->key, tree_node->height);
+             //   printf("The current node's left child is and its height are %d %d \n", tree_node->left->key, tree_node->left->height);
 
-            
+                //bf_node = balance_factor(tree_node); as after its finished, it returns the tree_node to its parent>
+
+            }
+            else if (balance_factor(tree_node->right) == -1) // right elbow
+            { //  printf("The current node and its height are %d %d \n", tree_node->key, tree_node->height);
+                tree_node->right = Rotate_right(tree_node->right);
+                tree_node = Rotate_left(tree_node);
+               // printf("The current node and its height are %d %d \n", tree_node->key, tree_node->height);
+
+            }
+
+
         }
-        
-        else if (bf_node == -2)
-        {        bf_node = balance_factor(tree_node); 
-             if (bf_node == -2 && balance_factor(tree_node->left) == -1) // left straight line              
-            {   
-                // tree_node = 2, tree_node->right = 4, tree_node_right_right = 9
 
+        else if (bf_node == -2)
+        {       // bf_node = balance_factor(tree_node);
+             if (balance_factor(tree_node->left) == -1) // left straight line
+            {
+                // tree_node = 2, tree_node->right = 4, tree_node_right_right = 9
+               // printf("The current node and its height are %d %d \n", tree_node->key, tree_node->height);
                 tree_node = Rotate_right(tree_node);
-                bf_node = balance_factor(tree_node);
+               // printf("The current node and its height are %d %d \n", tree_node->key, tree_node->height);
+              //  printf("The current node's right child is and its height are %d %d \n", tree_node->right->key, tree_node->right->height);
+                //bf_node = balance_factor(tree_node); as you are no longer dealing with this node, you will be moving up the chain and checking for its parent
             }
-            
-           if (bf_node == -2 && balance_factor(tree_node->left) == 1) // left elbow
+
+           else if (balance_factor(tree_node->left) == 1) // left elbow
                 // left elbow, break it into 2 steps, first transform into a order that can be fixed using a single rotation
                 // transformation
-            {   tree_node = Rotate_right_double(tree_node);
-                tree_node = Rotate_right(tree_node);
-                bf_node = balance_factor(tree_node);
+            {
+
+                tree_node->left = Rotate_left(tree_node->left); // give the first rotation
+                tree_node = Rotate_right(tree_node); // second rotation
+
+
+
+                //bf_node = balance_factor(tree_node);
             }
-            
+
         }
-        
+
         return tree_node; // draw
 
 
@@ -307,7 +325,7 @@ AVLTree *CreateAVLTree (const char *filename)
                 {
                     mytree->root = insert_in_tree(mytree->root, node);
                     mytree->size ++;
-                    printf("tree root is this after balancing %d \n",  mytree->root->key);
+                    //printf("tree root is this after balancing %d \n",  mytree->root->key);
 
 
 
@@ -328,7 +346,7 @@ AVLTree *CreateAVLTree (const char *filename)
 void printhelper(AVLTreeNode* node){
     if (node != NULL){
         printhelper(node->left);
-        printf("key is %d and value is %d \n",  node->key, node->value);
+        printf("key is %d and value is %d and height is %d \n",  node->key, node->value, node->height);
         printhelper(node->right);
     }
 
@@ -351,6 +369,6 @@ int main()
 {
     AVLTree *mytree;
     mytree = CreateAVLTree ("File1.txt");
-    //PrintAVLTree(mytree);
+    PrintAVLTree(mytree);
     free (mytree);
 }

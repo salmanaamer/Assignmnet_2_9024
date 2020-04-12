@@ -20,4 +20,9 @@ the code does not work if I dont check for balance factor again
 
 / Right straight line // why can the input not just be a node, why is it a pointer to a node ?
 
-Do we need to free pointers ?
+Do we need to free pointers ?  we should,
+
+double clik to add breakpoint //
+
+
+use up and down arrows to toggle between old commands used in terminal
